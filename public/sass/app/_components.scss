@@ -1,0 +1,24 @@
+.images-display{
+  padding:10px;
+  display:flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.thumbnail{
+  max-height:150px;
+  max-width:150px;
+  overflow: hidden;
+  margin:8px;
+  border:1px solid $color__primary;
+  border-radius: 5px;
+
+  img{
+    height:100%;
+    width:auto;
+  }
+}
+
+.templates{
+  display:none;
+}

@@ -1,0 +1,250 @@
+
+.field-group{
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.form-group{
+  margin: 5px auto;
+}
+
+.auto-amount{
+    background: $color__secondary !important;
+    color: $color__dark !important;
+}
+
+.edit-drinks-field-group{
+    @extend .field-group;
+
+    .name-field{
+      min-width: 60%;
+    }
+    .stock-field{
+      min-width: 20%;
+    }
+    .price-field{
+      min-width: 20%;
+    }
+}
+
+.add-drinks-field-group{
+    @extend .field-group;
+
+    .name-field{
+      min-width: 40%;
+    }
+    .type-field{
+      min-width: 23%;
+    }
+    .stock-field{
+      min-width: 17%;
+    }
+    .price-field{
+      min-width: 20%;
+    }
+}
+
+.add-rooms-field-group{
+    @extend .field-group;
+
+    .name-field{
+      min-width: 45%;
+    }
+    .type-field{
+      min-width: 30%;
+    }
+    .price-field{
+      min-width: 25%;
+    }
+}
+
+.edit-rooms-field-group{
+    @extend .field-group;
+
+    .name-field{
+      min-width: 40%;
+    }
+    .fan-field{
+      min-width: 19%;
+    }
+    .ac-field{
+      min-width: 19%;
+    }
+    .price-field{
+      min-width: 22%;
+    }
+}
+
+.sale-room-field-group{
+  @extend .field-group;
+
+  .name-field{
+    min-width: 60%;
+  }
+
+  .price-field{
+    min-width: 40%;
+  }
+}
+
+
+.add-foods-field-group,.edit-foods-field-group {
+  @extend .field-group;
+
+  .name-field{
+    min-width: 50%;
+  }
+  .stock-field{
+    min-width: 25%;
+  }
+  .price-field{
+    min-width: 25%;
+  }
+}
+
+.add-members-field-group{
+  @extend .field-group;
+
+  .name-field{
+    min-width: 50%;
+  }
+  .gender-field{
+    min-width: 25%;
+  }
+  .salary-field{
+    min-width: 25%;
+  }
+}
+
+.edit-members-field-group {
+  @extend .field-group;
+
+  .name-field{
+    min-width: 50%;
+  }
+  .department-field{
+    min-width: 50%;
+  }
+}
+
+.sale-field-group{
+  @extend .field-group;
+
+  .name-field{
+    min-width: 60%;
+  }
+
+  .price-field{
+    min-width: 40%;
+  }
+}
+
+.businessday-header{
+    margin: 1.5em auto;
+    border-bottom: 1px solid $color__primary;
+}
+
+#businessdayFooter{
+    margin: 4em auto !important;
+}
+
+.transaction-group{
+   margin: 1.5em auto;
+}
+
+.transaction-group-header{
+    border-bottom: 1px solid $color__secondary;
+    color:$color__dark;
+    box-sizing: content-box;
+    justify-content: space-between;
+    margin: 1em auto;
+
+    .group-name,.group-total{
+        box-sizing: content-box;
+        padding:5px;
+        @extend .top-round;
+        background: $color__secondary;
+    }
+    .group-total{
+      //align-self: flex-end;
+      margin-right: 0;
+    }
+}
+
+
+.index-stocked-row{
+    margin: 0px 0;
+    border-radius: 0px;
+    overflow: hidden;
+    color:$color__secondary;
+
+    .index-stocked-field-group{
+        background: rgba($color__dark,1);
+        color:inherit;
+    }
+
+    .row-index{
+      cursor: pointer;
+      border-right:1px solid $white;
+      background: rgba($color__dark,1);
+      color:inherit;
+    }
+
+    &:nth-child(even){
+        color:$color__dark;
+        .index-stocked-field-group{
+            background: rgba($color__secondary,1);
+        }
+
+        .row-index{
+            background: rgba($color__secondary,1);
+        }
+    }
+}
+
+.rows-header{
+
+    .index-drinks-field-group{
+      border-width:0px !important;
+    }
+
+  &:hover{
+      border-width:0px !important;
+  }
+  .row-index{
+      background: none !important;
+  }
+}
+
+.field-header{
+    font-weight: bold;
+    color:$color__primary;
+    border-bottom:none !important;
+    background: none !important;
+}
+
+.index-stocked-field-group{
+    @extend .field-group;
+    position: relative;
+    flex-grow: 1;
+    padding:5px;
+    transition: border 0.3s;
+    border: 1px solid transparent;
+
+    &:hover{
+      border:1px solid rgba($color__dark,0.3);
+    }
+
+    .name-field{
+        min-width: 50%;
+
+    }
+
+    .stock-field{
+        min-width: 25%;
+    }
+
+    .price-field{
+        min-width: 25%;
+    }
+}

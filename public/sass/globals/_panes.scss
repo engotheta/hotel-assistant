@@ -1,0 +1,17 @@
+#admin_panel{
+  .list-group .link{
+    margin:3px 0px;
+  }
+  .card-header {
+    color:$color__dark;
+  }
+  .admin-card-header{
+    color:$color__primary !important;
+  }
+  .admin-item-card-header{
+    border-color:$color__secondary;
+    background-color:$color__dark;
+    color:$color__white;
+    border-radius: 0px;
+  }
+}

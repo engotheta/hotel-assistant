@@ -1,0 +1,42 @@
+.navbar{
+  color:$color__white !important;
+  background:$color__primary;
+
+
+  @include media-breakpoint-down(sm){
+    .dropdown-menu{
+      background: none !important;
+      color:$color__white;
+    }
+
+    .dropdown-item{
+        background: none !important;
+        color:$color__white;
+    }
+  }
+}
+
+.nav-links{
+   margin: 5px 0px;
+}
+
+.nav-item {
+  background: none;
+  color:$color__white;
+}
+
+.dropdown-menu{
+
+}
+
+.dropdown-item{
+
+}
+
+.menu{
+  cursor: pointer;
+}
+
+.menu-option{
+  color:$color__primary;
+}

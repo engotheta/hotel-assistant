@@ -1,0 +1,131 @@
+.model-container{
+   display:flex;
+   width:100%;
+   flex-wrap: wrap;
+}
+
+.strong{
+  font-weight: bold;
+  color:$color__dark;
+}
+
+.category{
+    color:$color__dark;
+    width: 100%;
+    flex-shrink: 0;
+    text-transform: capitalize;
+}
+
+.sub-category{
+  width: 100%;
+  color:$color__dark;
+  flex-shrink: 0;
+  text-transform: capitalize;
+}
+
+.model {
+    position: relative;
+    flex-grow: 1;
+    color:$color__dark;
+    top:0px;
+    transition: border 0.3s,transform 0.3s,top 0.2s;
+
+    .card-text{
+
+    }
+    .card-body{
+      background: none;
+    }
+
+    &:hover{
+      border-color:$color__dark;
+    //  top: -3px;
+    //  transform: translate(0,-5px);
+    }
+}
+
+.model-index{
+    margin:8px !important;
+    width: 30%;
+    min-width: 150px;
+    flex-shrink: 0;
+    flex-grow: 1;
+    background: $color__secondary ;
+    color:$color__dark;
+
+    .text{
+      text-transform: capitalize;
+    }
+    .card-title{
+      opacity: 0.8;
+      cursor: pointer;
+      transition: opacity 0.3s;
+      position:relative;
+      z-index: 1000;
+
+      &:hover{
+        opacity: 1;
+      }
+    }
+}
+
+.model-show{
+  background: $color__secondary;
+  border-radius: 3px !important;
+  width:100%;
+  .icon{
+      opacity: 0.3 !important;
+  }
+}
+
+.model-card-medium{
+
+}
+
+.model-status{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position:absolute;
+    color:$color__secondary ;
+    background: $color__dark;
+    width:35px;
+    height:35px;
+    transition:opacity 0.3s;
+    border-radius: 50%;
+    top:3px; right:3px;
+    z-index: 999;
+    opacity: 0.8;
+    cursor: pointer;
+
+    &:hover{
+      opacity: 1;
+    }
+}
+
+.model-status-inline{
+  color:$color__secondary ;
+  background: $color__dark;
+}
+
+.model-status-inactive{
+    background: $color__danger !important;
+    color:$color__secondary !important;
+}
+
+.model-status-loan{
+    background: $color__warning !important;
+    color: $color__dark !important;
+}
+
+.member-card {
+
+}
+
+.room-card{
+
+}
+
+.index-drinks-field-group{
+
+}

@@ -1,0 +1,156 @@
+.relative{
+  position:relative;
+}
+
+.absolute{
+  position:absolute;
+}
+
+.full-screen{
+  height:100vh;
+  width:100%;
+}
+
+.flex{
+  display:flex;
+}
+
+.center-text{
+  text-align: center;
+}
+
+.fixed{
+  position:fixed;
+}
+
+.flex-container{
+  display: flex;
+}
+
+.flex-center{
+  justify-content: center;
+}
+
+.flex-end{
+  justify-content:flex-end;
+}
+
+.flex-around{
+  justify-content:space-around;
+}
+
+.flex-between{
+  justify-content: space-between;
+}
+.right{
+  float:right;
+}
+
+.left{
+  float:left;
+}
+
+.round{
+  border-radius: 3px;
+}
+
+.top-round{
+    border-radius: 10px 10px 0 0;
+}
+
+.padded{
+  padding:5px;
+}
+
+.spaced{
+  margin:5px ;
+}
+
+
+.vertically-spaced {
+    margin:1px auto !important;
+}
+
+.wide{
+  text-align:center;
+  min-width:100px;
+}
+
+.secondary{
+  background: $color__secondary;
+  color:$color__dark;
+  @extend .padded;
+}
+
+.dark{
+  background: $color__dark;
+  color:$color__white;
+  @extend .padded;
+}
+
+.info{
+  background: $color__info;
+  color:$color__white;
+  @extend .padded;
+}
+
+.danger{
+  background: $color__danger;
+  color:$color__white;
+  @extend .padded;
+}
+
+.warning{
+  background: $color__warning;
+  color:$color__white;
+  @extend .padded;
+}
+
+.primary{
+  background: $color__primary;
+  color:$color__white;
+  @extend .padded;
+}
+
+
+.secondary-outline{
+  border:1px solid $color__secondary;
+  background: none;
+  color:$color__secondary;
+  @extend .padded;
+}
+
+.dark-outline{
+  border:1px solid $color__dark;
+  background: none;
+  color:$color__dark;
+  @extend .padded;
+}
+
+.info-outline{
+  border:1px solid $color__info;
+  background: none;
+  color:$color__info;
+  @extend .padded;
+}
+
+.danger-outline{
+  border:1px solid $color__danger;
+  background: none;
+  color:$color__danger;
+  @extend .padded;
+}
+
+.warning-outline{
+  border:1px solid $color__warning;
+  background: none;
+  @extend .padded;
+  color:$color__warning;
+}
+
+.primary-outline{
+  border:1px solid $color__primary;
+  background: none;
+  @extend .padded;
+  color:$color__primary;
+}
