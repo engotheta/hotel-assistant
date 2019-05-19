@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\UserController;
+use App\Branch;
+use App\User;
 use App\FontIcon;
 use App\Room;
 use App\Drink;
@@ -17,6 +19,7 @@ use App\Activity;
 use App\Businessday;
 use App\Loan;
 use App\Booking;
+use App\Setting;
 use Carbon\Carbon;
 
 
@@ -42,40 +45,91 @@ class HomeController extends Controller
         return view('home',$this->homeParameters());
     }
 
-    public function homeParameters(){
-      $hotel = DB::table('settings')->where('name', 'hotel_name')->first();
-      $back_track_days = DB::table('settings')->where('name', 'back_track_days')->first();
+    public function homeParameters()
+    {
+        $themify_icons = new FontIcon;
+        $hotel = Setting::where('name','hotel_name')->first();
+        return [
+          'hotel' => $hotel,
+          'branches' => Branch::all(),
+          'themify_icons' => $themify_icons->themifyIcons(),
+          'members' => User::all(),
+          'roles' => Role::all(),
+          'functions' => new FunctionController,
+          'view_items' => $this->getViewItems(),
+          'admin_items' => $this->getAdminItems(),
+          'home' => $hotel,
+        ];
+    }
 
-      $themify_icons = new FontIcon;
-      $branches = DB::table('branches')->get();
+    public function getAdminItems()
+    {
+        //
+          $admin_items = [
+                  [
+                    'name' => 'settings' ,
+                    'actions'=> [['name'=>'edit','link'=>'settings'],],
+                    'target'=>'settingsModal' ],
+                  [
+                    'name' => 'branches',
+                    'actions' => [
+                            ['name'=>'add', 'link'=>'/branches/create'],
+                            ['name'=>'edit'],
+                            ['name'=>'delete']
+                          ] ,
+                    'target'=>'branchesModal' ],
+              ];
 
-      $members = DB::table('users')->get();
-      $rooms = Room::all();
-      $drinks = Drink::all();
-      $foods = Food::all();
-      $venues = Venue::all();
-      $activities = Activity::all();
+          return $admin_items;
 
-      $businessdays = Businessday::orderBy('id','desc')->take((int)$back_track_days->value)->get();
-      $unpaid_loans = Loan::where('complete',false)->get();
-      $venue_bookings = Booking::where([['bookable_type','App/Venue'],
-              ['due_date','>=',Carbon::now()->toDateTimeString()]])->get();
+    }
 
-      return [
-        'hotel' =>  $hotel,
-        'branches' => $branches ,
-        'themify_icons' => $themify_icons->themifyIcons() ,
-        'members' => $members,
-        'roles' => Role::all(),
-        'rooms' => $rooms,
-        'functions' => new FunctionController,
-        'drinks' => $drinks,
-        'foods' => $foods,
-        'venues' => $venues,
-        'activities' => $activities,
-        'businessdays' => $businessdays,
-        'unpaid_loans' => $unpaid_loans,
-        'venue_bookings' => $venue_bookings,
-      ];
+    public function getViewItems()
+    {
+        $back_track_days = Setting::where('name', 'back_track_days')->first();
+        $businessdays = Businessday::orderBy('id','desc')->take((int)$back_track_days->value)->get();
+        $venue_bookings = Booking::where([['bookable_type','App/Venue'],
+                ['due_date','>=',Carbon::now()->toDateTimeString()]])->get();
+
+        $view_items = [
+              [
+                'name' => 'business days',
+                'link' => '/businessdays/',
+                'instance' => $businessdays, ],
+              [
+                'name' => 'unpaid loans',
+                'link' => '/unpaid-loans/',
+                'instance' => Loan::where('complete',false)->get(), ],
+              [
+                'name' => 'venue bookings',
+                'link' => '/venue-bookings/',
+                'instance' => $venue_bookings, ],
+              [
+                'name' => 'members',
+                'link' => '/members/',
+                'instance' => User::all(), ],
+              [
+                'name' => 'rooms',
+                'link' => '/rooms/',
+                'instance' => Room::all(), ],
+              [
+                'name' => 'drinks',
+                'link' => '/drinks/',
+                'instance' => Drink::all(), ],
+              [
+                'name' => 'foods',
+                'link' => '/foods/',
+                'instance' => Food::all(), ],
+              [
+                'name' => 'venues',
+                'link' => '/venues/',
+                'instance' => Venue::all(), ],
+              [
+                'name' => 'activities',
+                'link' => '/activities/',
+                'instance' => Activity::all(), ],
+        ];
+
+        return $view_items;
     }
 }

@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Branch extends Model
 {
@@ -77,5 +78,21 @@ class Branch extends Model
 
     public function transactions(){
     	return $this->hasMany('App\Transaction');
+    }
+
+    public function venueBookings(){
+      return  Booking::where([
+              ['bookable_type','App/Venue'],
+              ['due_date','>=',Carbon::now()->toDateTimeString()],
+              ['branch_id',$this->id] ])->get();
+    }
+
+    public function unpaidLoans(){
+      return Loan::where([['complete',false],['branch_id',$this->id]])->get();
+    }
+
+    public function recentBusinessdays(){
+      $back_track_days = Setting::where('name', 'back_track_days')->first();
+      return Businessday::where('branch_id',$this->id)->orderBy('id','desc')->take((int)$back_track_days->value)->get();
     }
 }

@@ -3,7 +3,6 @@
 <head>
   <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="//html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 
-
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
@@ -28,10 +27,8 @@
     <link href="{{ asset('packages/smartphoto/css/smartphoto.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('packages/tippy/css/light.css') }}" rel="stylesheet" type="text/css">
 
-
-
 </head>
-<body onswiperight="alert()" >
+<body>
     <div id="app">
 
         <nav class="navbar navbar-expand-md navbar-light navbar-laravel">

@@ -1,0 +1,21 @@
+@include media-breakpoint-up(xs){
+  #content .modal-body, #content .card-body{
+    padding:8px 5px !important;
+  }
+
+  #admin_panel,#content,#view_panel{
+    padding: 5px;
+  }
+
+}
+
+@include media-breakpoint-up(sm){
+    #content .modal-body, #content .card-body{
+    padding:8px !important;
+  }
+
+  #admin_panel,#content,#view_panel{
+    padding: 8px;
+  }
+
+}

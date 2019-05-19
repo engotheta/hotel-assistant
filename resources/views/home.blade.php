@@ -1,12 +1,19 @@
-@extends('layouts.home')
+<?php
+    //add nav bar links items
+    $nav_bar_items = ['hotel'=>$hotel];
+    if(isset($branch)) $nav_bar_items += ['branch' => $branch];
+    if(isset($department)) $nav_bar_items += ['department' => $department];
+
+    //update viriables used in links
+    $department = isset($department)? $department:null;
+    $branch = isset($branch)? $branch:null;
+ ?>
+
+@extends('layouts.insider')
 
 @section('nav_bar')
-    @nav_bar([
-        'hotel'=>$hotel,
-        'carets' => 0,
-    ])
+    @nav_bar($nav_bar_items)
     @endnav_bar
-
 @endsection
 
 @section('page')
@@ -18,7 +25,7 @@
         </div>
 
         <div class="card-body">
-          
+
             @include('partials.messages')
 
             <div class="list-group">

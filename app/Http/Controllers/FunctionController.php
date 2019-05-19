@@ -79,9 +79,9 @@ class FunctionController extends Controller
     }
 
     public function goBackTo(Branch $branch = null, $department = null){
-        if($department) return 'Back To '.$department->name;
-        if($branch) return 'Back To '.$branch->name;
-        return 'Back To Home';
+        if($department) return 'To '.$department->name;
+        if($branch) return 'To '.$branch->name;
+        return 'To Home';
     }
 
     public function isDepartment($department){

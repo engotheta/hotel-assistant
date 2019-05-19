@@ -194,59 +194,114 @@ class BranchController extends Controller
         return redirect('home')->with('success','the '.$name. ' branch has been deleted successfully');
     }
 
-    public function branchParameters(Branch $branch){
-      $hotel = DB::table('settings')->where('name', 'hotel_name')->first();
-      $back_track_days = DB::table('settings')->where('name', 'back_track_days')->first();
-      $transaction_types = TransactionType::all();
-      $roles = Role::all();
-      $titles = Title::all();
-      $services = Service::all();
-      $room_types = RoomType::all();
-      $drink_types = DrinkType::all();
-      $crate_sizes = CrateSize::all();
-      $themify_icons = new FontIcon;
-      $functions = new FunctionController;
+    public function branchParameters(Branch $branch)
+    {
+        $themify_icons = new FontIcon;
+        return [
+          'hotel' => DB::table('settings')->where('name', 'hotel_name')->first(),
+          'functions'=> new FunctionController,
+          'roles' => Role::all(),
+          'titles' => Title::all(),
+          'services' => Service::all(),
+          'room_types' => RoomType::all(),
+          'drink_types' =>  DrinkType::all(),
+          'transaction_types' => TransactionType::all(),
+          'crate_sizes' => CrateSize::all(),
+          'admin_items' => $this->getAdminItems($branch),
+          'view_items' => $this->getViewItems($branch),
+          'themify_icons' => $themify_icons->themifyIcons() ,
+          'branch' => $branch ,
+          'departments' => $branch->departments ,
+          'members' => $branch->members,
+          'rooms' => $branch->rooms,
+          'drinks' => $branch->drinks,
+          'foods' => $branch->foods,
+          'venues' => $branch->venues,
+          'activities' => $branch->activities,
 
-      $departments = $branch->departments;
-      $members = $branch->users;
-      $rooms = $branch->rooms;
-      $drinks = $branch->drinks;
-      $foods = $branch->foods;
-      $venues = $branch->venues;
-      $activities = $branch->activities;
+        ];
+    }
 
-      $businessdays = Businessday::where('branch_id','=',$branch->id)->orderBy('id','desc')->take((int)$back_track_days->value)->get();
-      $unpaid_loans = Loan::where([['complete',false],['branch_id',$branch->id]])->get();
-      $venue_bookings = Booking::where([
-              ['bookable_type','App/Venue'],
-              ['due_date','>=',Carbon::now()->toDateTimeString()],
-              ['branch_id',$branch->id]  ])->get();
+    public function getAdminItems(Branch $branch)
+    {
+        //
+          $admin_items =  [
+                  [
+                    'name' => 'departments',
+                    'actions' => [['name'=>'add','link'=>'/departments/'.$branch->slug.'/create'],['name'=>'edit'],['name'=>'delete']] ,
+                    'target'=>'departmentsModal' ],
+                  [
+                    'name' => 'members',
+                    'actions' => [['name'=>'add','link'=>'/users/'.$branch->slug.'/create'],['name'=>'edit'],['name'=>'delete'],['name'=>'titles','link'=>'/titles/'.$branch->slug]] ,
+                    'target'=>'membersModal' ],
+                  [
+                    'name' => 'activities',
+                    'actions' => [['name'=>'add','link'=>'/activities/'.$branch->slug.'/create'],['name'=>'edit'],['name'=>'delete']] ,
+                    'target'=>'activitiesModal' ],
+                  [
+                    'name' => 'venues',
+                    'actions' => [['name'=>'add','link'=>'/venues/'.$branch->slug.'/create'],['name'=>'edit'],['name'=>'delete']] ,
+                    'target'=>'venuesModal' ],
+                  [
+                    'name' => 'rooms',
+                    'actions' => [['name'=>'add','link'=>'/rooms/'.$branch->slug.'/create'],['name'=>'edit'],['name'=>'delete'],['name'=>'variables','link'=>'/rooms-variables/'.$branch->slug]] ,
+                    'target'=>'roomsModal' ],
+                  [
+                    'name' => 'drinks',
+                    'actions' => [['name'=>'add','link'=>'/drinks/'.$branch->slug.'/create'],['name'=>'edit'],['name'=>'delete'],['name'=>'variables','link'=>'/drinks-variables/'.$branch->slug]] ,
+                    'target'=>'drinksModal' ],
+                  [
+                    'name' => 'foods',
+                    'actions' => [['name'=>'add','link'=>'/foods/'.$branch->slug.'/create'],['name'=>'edit'],['name'=>'delete']] ,
+                    'target'=>'foodsModal' ],
+          ];
 
+          return $admin_items;
 
+    }
 
-      return [
-        'hotel' =>  $hotel,
-        'functions'=>$functions,
-        'roles' =>  $roles,
-        'titles' =>  $titles,
-        'services' =>  $services,
-        'room_types' =>  $room_types,
-        'drink_types' =>  $drink_types,
-        'transaction_types' =>  $transaction_types,
-        'crate_sizes' =>  $crate_sizes,
-        'branch' => $branch ,
-        'departments' => $departments ,
-        'themify_icons' => $themify_icons->themifyIcons() ,
-        'members' => $members,
-        'rooms' => $rooms,
-        'drinks' => $drinks,
-        'foods' => $foods,
-        'venues' => $venues,
-        'activities' => $activities,
-        'businessdays' => $businessdays,
-        'unpaid_loans' => $unpaid_loans,
-        'venue_bookings' => $venue_bookings,
-      ];
+    public function getViewItems(Branch $branch)
+    {
+        $view_items = [
+              [
+                'name' => 'business days',
+                'link' => '/businessdays/'.$branch->slug,
+                'instance' => $branch->recentBusinessdays(), ],
+              [
+                'name' => 'unpaid loans',
+                'link' => '/unpaid-loans/.$branch->slug',
+                'instance' => $branch->unpaidLoans(), ],
+              [
+                'name' => 'venue bookings',
+                'link' => '/venue-bookings/'.$branch->slug,
+                'instance' => $branch->venueBookings(), ],
+              [
+                'name' => 'members',
+                'link' => '/members/'.$branch->slug,
+                'instance' => $branch->members, ],
+              [
+                'name' => 'rooms',
+                'link' => '/rooms/'.$branch->slug,
+                'instance' => $branch->rooms, ],
+              [
+                'name' => 'drinks',
+                'link' => '/drinks/'.$branch->slug,
+                'instance' => $branch->drinks, ],
+              [
+                'name' => 'foods',
+                'link' => '/foods/'.$branch->slug,
+                'instance' => $branch->foods, ],
+              [
+                'name' => 'venues',
+                'link' => '/venues/'.$branch->slug,
+                'instance' => $branch->venues, ],
+              [
+                'name' => 'activities',
+                'link' => '/activities/'.$branch->slug,
+                'instance' => $branch->activities, ],
+        ];
+
+        return $view_items;
     }
 
 

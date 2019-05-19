@@ -1,13 +1,18 @@
+<?php
+    //add nav bar links items
+    $nav_bar_items = ['hotel'=>$hotel];
+    if(isset($branch)) $nav_bar_items += ['branch' => $branch];
+    $nav_bar_items += ['model' => 'events'];
+
+    //update viriables used in links
+    $branch = isset($branch)? $branch:null;
+ ?>
+
 @extends('layouts.outsider')
 
 @section('nav_bar')
-    @nav_bar([
-        'hotel'=>$hotel,
-        'branch' => $branch,
-        'activity' => $activity,
-    ])
+    @nav_bar($nav_bar_items)
     @endnav_bar
-
 @endsection
 
 @section('page')

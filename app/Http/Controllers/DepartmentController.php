@@ -228,7 +228,6 @@ class DepartmentController extends Controller
         'hotel' => DB::table('settings')->where('name', 'hotel_name')->first(),
         'roles' => Role::all(),
         'titles' => Title::all(),
-        'transaction_types' => TransactionType::all(),
         'admin_items' => $this->getAdminItems($department),
         'view_items' => $this->getViewItems($department),
         'themify_icons' => $themify_icons->themifyIcons(),
@@ -262,7 +261,7 @@ class DepartmentController extends Controller
 
           $rooms =  [
                 'name' => 'rooms',
-                'target'=>'RoomsModal',
+                'target'=>'roomsModal',
                 'actions' => [
                         ['name'=>'add','link'=>'/rooms/'.$department->branch->slug.'/'.$department->slug.'/add'],
                         ['name'=>'edit'],
@@ -272,7 +271,7 @@ class DepartmentController extends Controller
 
           $venues = [
                 'name' => 'venues',
-                'target'=>'VenuesModal',
+                'target'=>'venuesModal',
                 'actions' => [
                         ['name'=>'add', 'link'=>'/venues/'.$department->branch->slug.'/'.$department->slug.'/add'],
                         ['name'=>'edit'],
@@ -281,7 +280,7 @@ class DepartmentController extends Controller
 
           $drinks = [
               'name' => 'drinks',
-              'target'=>'DrinksModal',
+              'target'=>'drinksModal',
               'actions' => [
                         ['name'=>'add','link'=>'/drinks/'.$department->branch->slug.'/'.$department->slug.'/add'],
                         ['name'=>'edit'],
@@ -291,7 +290,7 @@ class DepartmentController extends Controller
 
           $foods = [
                 'name' => 'foods',
-                'target'=>'FoodsModal',
+                'target'=>'foodsModal',
                 'actions' => [
                         ['name'=>'add','link'=>'/foods/'.$department->branch->slug.'/'.$department->slug.'/add'],
                         ['name'=>'edit'],

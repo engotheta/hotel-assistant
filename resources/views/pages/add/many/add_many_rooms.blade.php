@@ -1,12 +1,15 @@
 <?php
-  $nav_bar_items = ['hotel'=>$hotel];
-  $nav_bar_items += ['branch' => $branch];
-  if(isset($department)) $nav_bar_items += ['department' => $department];
-  $scope = (isset($department))? 'department':'branch';
+    //add nav bar links items
+    $nav_bar_items = ['hotel'=>$hotel];
+    if(isset($branch)) $nav_bar_items += ['branch' => $branch];
+    if(isset($department)) $nav_bar_items += ['department' => $department];
+
+    //update viriables used in links
+    $department = isset($department)? $department:null;
+    $branch = isset($branch)? $branch:null;
  ?>
 
-@extends('layouts.'.$scope)
-
+@extends('layouts.insider')
 @section('nav_bar')
     @nav_bar($nav_bar_items)
     @endnav_bar
@@ -21,10 +24,6 @@
 
     <div class="card-body">
       @include('partials.messages')
-      <?php
-        $department = isset($department)? $department:null;
-        $branch = isset($branch)? $branch:null;
-       ?>
 
       <h4 class="section-title modal-header"> Drinks </h4>
       <form method="POST" name="rooms" action="{{$functions->getLink('rooms',null,$branch,$department).'/store-many'}}" enctype="multipart/form-data">

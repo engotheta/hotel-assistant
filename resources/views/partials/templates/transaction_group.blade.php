@@ -1,5 +1,5 @@
 
-<div class="transaction-group" id="transactionGroup_1">
+<div class="transaction-group" id="transactionGroup_1" >
   <div class="transaction-group-header flex-container">
       <span class="group-name wide dropdown-toggle"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <span class="model-name plural"> Sale </span>
@@ -14,12 +14,13 @@
   <div class="transactions-header">
       <!-- js filled according to the transactionType_ -->
   </div>
-  <div class="transactions-list" id="childFields_1">
+  <div class="transactions-list fields-parent" id="childFields_1">
       <!-- transaction type fields are populated here -->
   </div>
   <hr>
   <div class="input-group field transactions-footer center-text flex-container flex-between">
-    <button type="button" class="round secondary-outline wide" data-toggle='modal' data-target="#{{"d"}}">
+    <button type="button" class="round secondary-outline wide action-trigger"
+      data-service="" data-toggle='modal' data-field="#transactionField_1" data-transaction="" data-target="#" data-parent="#childFields_1">
       <span> add </span>
       <span class="model-name"> Sale </span>
     </button>

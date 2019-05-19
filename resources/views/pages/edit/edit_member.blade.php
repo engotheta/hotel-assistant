@@ -1,27 +1,15 @@
 <?php
-
+    //add nav bar links items
     $nav_bar_items = ['hotel'=>$hotel];
-
-    if(isset($department)){
-      $scope = 'department';
-    }elseif(isset($branch)){
-      $scope = 'branch';
-    }else{
-      $scope = 'home';
-    }
-
     if(isset($branch)) $nav_bar_items += ['branch' => $branch];
     if(isset($department)) $nav_bar_items += ['department' => $department];
-    $nav_bar_items += ['model' => 'members'];
-    $nav_bar_items += ['instance' => $member];
 
+    //update viriables used in links
     $department = isset($department)? $department:null;
     $branch = isset($branch)? $branch:null;
-    $member = isset($member)? $member:null;
-
  ?>
 
-@extends('layouts.'.$scope)
+@extends('layouts.insider')
 
 @section('nav_bar')
     @nav_bar($nav_bar_items)

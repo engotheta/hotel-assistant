@@ -4,8 +4,51 @@
   flex-wrap: nowrap;
 }
 
+.sub-field-group{
+    display: flex;
+    flex-wrap: nowrap;
+
+    .field{
+      @extend .field-group;
+      min-width: 49%;
+      flex-grow: 1;
+      margin: 5px;
+    }
+
+    .label{
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+        margin-right:-1;
+    }
+    input{
+        border-top-left-radius: 0px;
+        border-bottom-left-radius: 0px;
+        margin-left:-1;
+    }
+}
+
+@include media-breakpoint-up(xs){
+  .show-on-small{
+    display:flex;
+  }
+}
+
+@include media-breakpoint-up(sm){
+  .show-on-small{
+    display:none;
+  }
+}
+
+.collapse{
+  padding-bottom: 8px;
+}
+
 .form-group{
   margin: 5px auto;
+}
+
+.bottom-spaced{
+  margin-bottom: 8px;
 }
 
 .auto-amount{
@@ -75,19 +118,6 @@
     }
 }
 
-.sale-room-field-group{
-  @extend .field-group;
-
-  .name-field{
-    min-width: 60%;
-  }
-
-  .price-field{
-    min-width: 40%;
-  }
-}
-
-
 .add-foods-field-group,.edit-foods-field-group {
   @extend .field-group;
 
@@ -127,17 +157,27 @@
   }
 }
 
-.sale-field-group{
+.transaction-field-group{
   @extend .field-group;
 
   .name-field{
-    min-width: 60%;
+    min-width: 47%;
+    flex-grow: 1.1;
+  }
+
+  .quantity-field{
+      min-width: 13%;
   }
 
   .price-field{
-    min-width: 40%;
+    min-width: 20%;
+  }
+
+  .amount-field{
+    min-width: 20%;
   }
 }
+
 
 .businessday-header{
     margin: 1.5em auto;

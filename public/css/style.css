@@ -10223,6 +10223,23 @@ a.text-dark:hover, a.text-dark:focus {
 	border-radius: 0px;
 }
 
+#content .modal-body, #content .card-body {
+	padding: 8px 5px !important;
+}
+
+#admin_panel, #content, #view_panel {
+	padding: 5px;
+}
+
+@media (min-width: 576px) {
+	#content .modal-body, #content .card-body {
+		padding: 8px !important;
+	}
+	#admin_panel, #content, #view_panel {
+		padding: 8px;
+	}
+}
+
 body, #app {
 	max-width: 100vw;
 	overflow-x: hidden !important;
@@ -10450,15 +10467,60 @@ body, #app {
 	color: #639184;
 }
 
-.field-group, .edit-drinks-field-group, .add-drinks-field-group, .add-rooms-field-group, .edit-rooms-field-group, .sale-room-field-group, .add-foods-field-group, .edit-foods-field-group, .add-members-field-group, .edit-members-field-group, .sale-field-group, .index-stocked-field-group {
+.field-group, .sub-field-group .field, .edit-drinks-field-group, .add-drinks-field-group, .add-rooms-field-group, .edit-rooms-field-group, .add-foods-field-group, .edit-foods-field-group, .add-members-field-group, .edit-members-field-group, .transaction-field-group, .index-stocked-field-group {
 	display: -ms-flexbox;
 	display: flex;
 	-ms-flex-wrap: nowrap;
 	    flex-wrap: nowrap;
 }
 
+.sub-field-group {
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-wrap: nowrap;
+	    flex-wrap: nowrap;
+}
+
+.sub-field-group .field {
+	min-width: 49%;
+	-ms-flex-positive: 1;
+	    flex-grow: 1;
+	margin: 5px;
+}
+
+.sub-field-group .label {
+	border-top-right-radius: 0px;
+	border-bottom-right-radius: 0px;
+	margin-right: -1;
+}
+
+.sub-field-group input {
+	border-top-left-radius: 0px;
+	border-bottom-left-radius: 0px;
+	margin-left: -1;
+}
+
+.show-on-small {
+	display: -ms-flexbox;
+	display: flex;
+}
+
+@media (min-width: 576px) {
+	.show-on-small {
+		display: none;
+	}
+}
+
+.collapse {
+	padding-bottom: 8px;
+}
+
 .form-group {
 	margin: 5px auto;
+}
+
+.bottom-spaced {
+	margin-bottom: 8px;
 }
 
 .auto-amount {
@@ -10522,14 +10584,6 @@ body, #app {
 	min-width: 22%;
 }
 
-.sale-room-field-group .name-field {
-	min-width: 60%;
-}
-
-.sale-room-field-group .price-field {
-	min-width: 40%;
-}
-
 .add-foods-field-group .name-field, .edit-foods-field-group .name-field {
 	min-width: 50%;
 }
@@ -10562,12 +10616,22 @@ body, #app {
 	min-width: 50%;
 }
 
-.sale-field-group .name-field {
-	min-width: 60%;
+.transaction-field-group .name-field {
+	min-width: 47%;
+	-ms-flex-positive: 1.1;
+	    flex-grow: 1.1;
 }
 
-.sale-field-group .price-field {
-	min-width: 40%;
+.transaction-field-group .quantity-field {
+	min-width: 13%;
+}
+
+.transaction-field-group .price-field {
+	min-width: 20%;
+}
+
+.transaction-field-group .amount-field {
+	min-width: 20%;
 }
 
 .businessday-header {
@@ -10708,6 +10772,7 @@ body, #app {
 
 .model {
 	position: relative;
+	font-size: 14px;
 	-ms-flex-positive: 1;
 	    flex-grow: 1;
 	color: #6b6b6b;

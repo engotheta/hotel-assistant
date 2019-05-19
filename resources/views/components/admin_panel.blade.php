@@ -40,7 +40,8 @@
                                $target = isset($action['link']) ? '':'data-toggle=modal' ;
                            ?>
                           <a class='link' href="{{$link}}">
-                            <button type="button" class="list-group-item list-group-item-action" {{$target}} data-target="#{{$action['name'].$item['target']}}">
+                            <button type="button" class="list-group-item list-group-item-action action-trigger" {{$target}}
+                              data-action="{{$action['name']}}" data-target="#{{$item['target']}}">
                                 @isset($themify_icons[$action['name']])
                                    <?php  echo $themify_icons[$action['name']]['tag'] ?>
                                 @endisset

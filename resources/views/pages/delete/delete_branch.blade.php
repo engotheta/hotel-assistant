@@ -1,19 +1,19 @@
 <?php
+    //add nav bar links items
+    $nav_bar_items = ['hotel'=>$hotel];
+    if(isset($branch)) $nav_bar_items += ['branch' => $branch];
+    if(isset($department)) $nav_bar_items += ['department' => $department];
 
+    //update viriables used in links
     $department = isset($department)? $department:null;
     $branch = isset($branch)? $branch:null;
-
  ?>
 
-@extends('layouts.home')
+@extends('layouts.insider')
 
 @section('nav_bar')
-    @nav_bar([
-        'hotel'=>$hotel,
-
-    ])
+    @nav_bar($nav_bar_items)
     @endnav_bar
-
 @endsection
 
 @section('page')

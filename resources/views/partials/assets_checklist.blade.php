@@ -45,7 +45,7 @@
       <hr>
       <div class="drink-list row">
           <script type="text/javascript"> var foods = {{json_encode($foods)}} </script>
-          @include('partials.modals.drinks_modal')
+          @include('partials.modals.foods_modal')
           @foreach($foods as $food)
           <div class="food-list-item col-4">
               <input id="{{'food_'.$food->id}}" data-option="#{{'foodOption_'.$food->id}}" name="food[]" value="{{$food->id}}" type="checkbox" >

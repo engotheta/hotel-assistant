@@ -1,32 +1,27 @@
 <?php
-
+    //add nav bar links items
+    $is_department = null;
     $nav_bar_items = ['hotel'=>$hotel];
+    if(isset($branch)) $nav_bar_items += ['branch' => $branch];
 
-    if(isset($department)){
-      $scope = 'department';
+    if(isset($department)) {
+      $nav_bar_items += ['department' => $department];
       $is_department = $department;
-    }elseif(isset($activity)){
-      $scope = 'outsider';
-      $services = (object)json_decode(json_encode([['name'=>$activity->name],]));
-      $is_department = $activity;
-      $transaction_types = $transaction_types;
-    }elseif(isset($branch)){
-      $scope = 'branch';
-    }else{
-      $scope = 'home';
+      $activity = null;
     }
 
-    if(isset($branch)) $nav_bar_items += ['branch' => $branch];
-    if(isset($department)) $nav_bar_items += ['department' => $department];
-    if(isset($activity)) $nav_bar_items += ['activity' => $activity];
+    if(isset($activity)){
+        $nav_bar_items += ['activity' => $activity];
+        $is_department = $activity;
+        $department = null;
+        $services = json_decode(json_encode([['name'=>$activity->name],]));
+    }
 
-    $department = isset($department)? $department:null;
-    $activity = isset($activity)? $activity:null;
+    //update viriables used in links
     $branch = isset($branch)? $branch:null;
-
  ?>
 
-@extends('layouts.'.$scope)
+@extends('layouts.insider')
 
 @section('nav_bar')
     @nav_bar($nav_bar_items)
@@ -96,9 +91,7 @@
                       {{$sname}}
                    </span>
                     <div class="dropdown-menu">
-                      <a class="dropdown-item">
-                        Save State
-                      </a>
+                      <a class="dropdown-item"> Save State </a>
                     </div>
                     <span class="group-total top-round primary money wide"> 3000 </span>
                 </div>
@@ -108,7 +101,10 @@
                 </div>
 
                 <div id="{{$sname.'BusinessdayFooter'}}" class="input-group center-text flex-container flex-between">
-                  <button type="button" class="round primary-outline wide" data-toggle='modal' data-target="#{{$sname.'TransactionTypesModal'}}"> Add Transaction Type </button>
+                  <button type="button" class="round primary-outline wide" data-toggle='modal'
+                   data-target="#{{$sname.'TransactionTypesModal'}}" >
+                   Add Transaction Type
+                  </button>
                   <span  class="round primary money wide" > 1000 </span>
                 </div>
 
@@ -134,9 +130,9 @@
               </div>
               @endforelse
 
-              <div class="templates">
+              <div class="templatesv">
                   @include('partials.templates.transaction_group')
-                  @include('partials.templates.single_sale_field')
+                  @include('partials.templates.transaction_field')
               </div>
 
               @if(!$activity)
@@ -176,7 +172,7 @@
         <a href="{{ $functions->getReturnLink($branch,$is_department)}}" >
           <button type="button" class="btn btn-secondary" >{{$functions->goBackTo($branch,$is_department)}}</button>
         </a>
-        <input class="btn btn-primary" type="submit"  value="Add The Department">
+        <input class="btn btn-primary" type="submit"  value="Add Businessday">
       </div>
 
     </form>

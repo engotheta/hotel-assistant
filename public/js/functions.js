@@ -1,23 +1,112 @@
 
-//obsolte
-function addTransactionGroup(selector){
-	if((group_prefix = selector.getAttribute('data-prefix')) == null) return;
-	var checkbox_id = group_prefix + selector.value;
-	popSelected(selector);
-	checkBox(document.getElementById(checkbox_id));
-}
-
-
 function getAttr(element,atr){
 	if((value = element.getAttribute(atr)) == null) return false;
 	return value;
 }
 
-//absolete
-function popSelected(selector){
-		if((group_prefix = selector.getAttribute('data-prefix')) == null) return;
-		var option_id = group_prefix + selector.value + "_option";
-		selector.removeChild(document.getElementById(option_id));
+// shift element on smaller devices and return if resized
+function manageShiftOnSmall(shifted){
+		if(getContentWidth() <= sm) {
+			//implement the shift to another parent on small devices
+			if((show = document.querySelectorAll('.show-on-small')).length >=1){
+				for (var i=0; i<show.length; i++){
+					show[i].style.display= (form = show[i].getAttribute('data-display'))? form:'flex';
+				}
+			}
+			if(parent = getViaAttr(shifted,'data-small-parent') ) {
+					parent.appendChild(shifted);
+			}
+			return null;
+		}
+
+		if(node = getViaAttr(shifted,'data-return-before')) {
+			node.parentNode.insertBefore(shifted,node);
+		}
+
+		if((show = document.querySelectorAll('.show-on-small')).length >=1){
+			for (var i=0; i<show.length; i++){
+					show[i].style.display='none';
+			}
+		}
+
+}
+
+// manage the trigger which alters other elements attributes,
+// the trigger has main two attributes 1: data-action & data-target
+// action - just a value which affects the target's elements if their properties dont match with value
+// has additional attributes: data-transaction, data-service, data-parent, data-click (to help with cloning)
+function manageAction(trigger){
+		var target = getViaAttr(trigger,'data-target');
+		var action = trigger.getAttribute('data-action');
+		//early return if no specified affected target
+		if(target == null) return false;
+
+		//deal with: .action-dependant-elements (they have: data-action which is compared to trigger's)
+		 dependant_element = target.querySelector('.action-dependant-element');
+		 if(dependant_element) showIf(dependant_element,dependant_element.getAttribute('data-action'),action);
+
+		 // if no action dependant_links end here
+		 dependant_links = target.querySelectorAll('.action-dependant-link');
+		 if(dependant_links.length <=0 ) return false;
+
+		 // deal with: .action-depandant-link (they alter href depending on the action)
+		 // if action is not set, the links become cloners
+		 for(var i=0; i<dependant_links.length; i++){
+			 	makeIfCloner(dependant_links[i],action,trigger);
+		  	if(action == null ) switchTag(dependant_links[i],'span');
+			  if(action !=null && dependant_links[i].tagName !='A') switchTag(dependant_links[i],'a');
+			  if(action !=null) setLinkTail(dependant_links[i],action);
+		 }
+
+		 // set onclick events to new cloners
+		 if(action == null) setCloners();
+}
+
+// make an element a cloner if null is given else remove cloning features
+function makeIfCloner(cloner,action=null,trigger=null){
+	if(trigger==null) trigger = cloner;
+
+	//pass parent & click element to cloner element
+	if(parent = trigger.getAttribute('data-parent')) cloner.setAttribute('data-parent',parent);
+	cloner.setAttribute("data-click",trigger.getAttribute('data-target'));
+
+	// set clone
+	if(action == null ){
+		// requires :data-field & data-parent, data-field is assumed to be in the element attr
+		// if cloner is a action_trigger remove the class
+		if(!cloner.className.includes('clone-field')) cloner.className +=" clone-field";
+		if(cloner.className.includes('action-trigger')) cloner.className = cloner.className.replace("action-trigger","");
+
+		return 1;
+	}
+
+	// remove clone
+	cloner.setAttribute("data-click","");
+	if(cloner.className.includes('clone-field')) cloner.className = cloner.className.replace("clone-field","");
+	cloner.onclick = function (){};
+}
+
+
+function switchTag(old_element,new_tag){
+		var new_element = document.createElement(new_tag);
+		new_element.innerHTML = old_element.innerHTML;
+		new_element.href = old_element.href;
+		var attr = old_element.attributes;
+		for(var i=0; i<attr.length; i++){
+			 new_element.setAttribute(attr[i].name,attr[i].value);
+		}
+		old_element.parentNode.replaceChild(new_element,old_element);
+}
+
+function showIf(element,value1,value2){
+		if(value1 == value2) element.style.display = 'block';
+		if(value1 != value2 || value2 == null || value1 == null) element.style.display = 'none';
+}
+
+function setLinkTail(link,value){
+    if(value == null ) return false;
+		var tail = link.href.split('/')[link.href.split('/').length-1];
+		link.href = link.href.replace(tail,value);
 }
 
 // what is popped from selected is checked in the check boxes
@@ -31,10 +120,14 @@ function uncheckBox(checkbox){
 		triggerEvent(checkbox);
 }
 
+// a cloner has two main data attributes: data-parent & data-field
+// additional attributes: data-service,
 function manageCloning(cloner){
+		// get the main elements from the data attribute
 		clone_parent = getViaAttr(cloner,'data-parent');
 		field = cloneField(getViaAttr(cloner,'data-field'),clone_parent);
-		updateModelField(field,cloner.getAttribute('data-model'));
+
+		updateModelField(field,cloner.getAttribute('data-model'),cloner);
 
 		if((close_modal = getViaAttr(cloner,'data-click')) && field ) triggerEvent(close_modal,'click');
 
@@ -42,7 +135,6 @@ function manageCloning(cloner){
 				field.querySelector('.remove-field').setAttribute('data-check',getAttr(cloner,'data-check'));
 				checkBox(checkbox);
 		}
-
 }
 
 var x_options = {};
@@ -74,6 +166,7 @@ function removeField(field, parent = null){
 }
 
 // updates the indexes of the field_group items according to their current count
+// SOL traverse siblings and update their indexes
 function updateIndex(parent){
 		if((indexes = parent.querySelectorAll('.index')).length == 0) return false;
 		for(var i=0; i<indexes.length; i++){
@@ -99,6 +192,7 @@ function cloneField(field, parent=null){
 }
 
 function getViaAttr(element,attr){
+	if (element.getAttribute(attr)=="#") return null;
 	return document.querySelector(element.getAttribute(attr));
 }
 
@@ -120,25 +214,77 @@ function getFieldIndex(field){
 	}
 }
 
+//get the documents width
+function getDocWidth(){
+	return Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+}
+
+function getContentWidth(){
+	return parseInt(getComputedStyle(document.querySelector('#content'),null).width);
+}
+
+
+
 // sets the fields attributes to match the field instance using its index
-function updateModelField(field,model){
+function updateModelField(field, model, cloner = null){
 	 if(!field) return false
 	 // quit if field id does not following the underscore convention
 	 if(!(n = getFieldIndex(field))) return false;
 
+	 // update the essential elements of a typical field
 	 indexfyAttr(field.querySelector('.remove-field'),'data-field',n);
 	 field.querySelector('.remove-field').setAttribute('onclick','removeField(document.getElementById("'+field.id+'"))');
 	 indexfyAttr(field.querySelector('.collapse-detail'),'data-target',n);
 	 replaceClasses(field.querySelectorAll('.'+model+'-field_1'),model+'-field_1',model+'-field_'+ n);
 	 changeId(field.querySelector('#collapseDetail_1'),'collapseDetail_'+ n);
-	 changeId(field.querySelector('#childFields_0'),'childFields_'+ n);
+	 changeId(field.querySelector('#childFields_1'),'childFields_'+ n);
+	 changeId(field.querySelector('#amountField_1'),'amountField_'+ n);
 
-	 changeHTMLs(field.querySelectorAll('.model-name'),model);
+	 // sync the shift & replaced elements on smaller devices
+	 if((els = field.querySelectorAll('.shift-on-small')).length >=1) {
+		 for(var i=0; i<els.length; i++) {
+			 indexfyAttr(els[i],'data-small-parent',n);
+			 indexfyAttr(els[i],'data-return-before',n);
+		 }
+	 }
+
+	 if((els = field.querySelectorAll('.append-field-on-small')).length >=1) {
+		 for(var i=0; i<els.length; i++) indexfyAttr(els[i],'id',n);
+	 }
+
+	 // fill the correct name of the field type, on the classes model-name
+	 var model_names = field.querySelectorAll('.model-name');
+	 for(var i=0; i<model_names.length; i++)	model_names[i].innerHTML = model;
+
+	 // sync the edit toggle element with the actuall fields which are not editable by default
+	 if(el = field.querySelector('.toggle-editable')) el.setAttribute('data-inputs',field.id);
+	 replaceClasses(field.querySelectorAll('.not-editable'),'not-editable',field.id);
+	 if(el = field.querySelector('.toggle-editable')) setToggleEditableTriggers(el);
+
+	 // for cloned elements which are associated with a modal
+	 // to sync with where to place the items after selecting an option from modal,
+	 // this parent will be passed to the cloner in the modal by the manageAction -> makeIfCloner function,
+	 if(el = field.querySelector('.fields-parent')) indexfyAttr(el,'id',n);
+	 if(el = field.querySelector('.action-trigger')) indexfyAttr(el,'data-parent',n);
+
+	 // pass the service type to the modal triggerer, so as to trigger the right modal
+	 if(service = cloner.getAttribute("data-service")) {
+			 if(el = field.querySelector('.action-trigger')) el.setAttribute("data-service",service);
+			 if(el && model =="sale") configToShowModal(el);
+			 if(el && model !="sale") {
+					makeIfCloner(el);
+			 }
+	 }
+
+	 // reset the cloners and triggers with in the cloned field
+	 setCloners();
+	 setTriggers();
 }
 
-function changeHTMLs(items,value){
-	if(items.length == 0) return false;
-	for(var i=0; i<items.length; i++) items[i].innerHTML = value;
+function configToShowModal(button){
+	if(service = button.getAttribute('data-service')){
+		button.setAttribute("data-target","#"+service+"Modal");
+	}
 }
 
 function hasChildClass(field,className){

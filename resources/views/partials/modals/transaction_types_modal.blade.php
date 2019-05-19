@@ -1,3 +1,4 @@
+@isset($transaction_types)
 <div class="modal fade" id="{{$sname.'TransactionTypesModal'}}" tabindex="-1" role="dialog"  aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content" >
@@ -24,6 +25,7 @@
                         data-model="{{$transaction_type->name}}"
                         data-click="#{{$sname.'TransactionTypesModal'}}"
                         data-check="#{{$sname.'TransactionType_'.$transaction_type->id}}"
+                        data-service="{{$service->name}}"
                         id="{{$sname.'TransactionTypeOption_'.$transaction_type->id}}"
                      >
                       <span class=" dark round index"> {{ $n++ }} </span>
@@ -39,9 +41,9 @@
 
             <div class="templates simulators">
                 @foreach ($transaction_types->where('prime',1) as $transaction_type)
-                   @if(1)
-                   <span class="simulate-cloner" data-cloner="#{{$sname.'TransactionTypeOption_'.$transaction_type->id}}"></span>
-                   @endif
+                   <span class="simulate-cloner"
+                   data-cloner="#{{$sname.'TransactionTypeOption_'.$transaction_type->id}}">
+                   </span>
                 @endforeach
             </div>
 
@@ -52,3 +54,4 @@
         </div>
     </div>
 </div>
+@endisset

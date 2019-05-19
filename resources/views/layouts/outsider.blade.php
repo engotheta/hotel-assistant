@@ -6,16 +6,13 @@
 
 @endsection
 
-
 @section('admin_panel')
     @admin_panel([
       'themify_icons' => $themify_icons,
-      'members' => $members,
       'items' => $admin_items,
     ])
     @endadmin_panel
 @endsection
-
 
 @section('view_panel')
     @view_panel([

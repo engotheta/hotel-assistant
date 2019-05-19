@@ -1,25 +1,16 @@
 <?php
-
+    //add nav bar links items
     $nav_bar_items = ['hotel'=>$hotel];
-
-    if(isset($department)){
-      $scope = 'department';
-    }elseif(isset($branch)){
-      $scope = 'branch';
-    }else{
-      $scope = 'home';
-    }
-
     if(isset($branch)) $nav_bar_items += ['branch' => $branch];
     if(isset($department)) $nav_bar_items += ['department' => $department];
 
+    //update viriables used in links
     $department = isset($department)? $department:null;
     $branch = isset($branch)? $branch:null;
-    $venue = isset($venue)? $venue:null;
-
  ?>
 
-@extends('layouts.'.$scope)
+@extends('layouts.insider')
+
 
 @section('nav_bar')
     @nav_bar($nav_bar_items)
@@ -118,7 +109,7 @@
       <a href="{{ $functions->getReturnLink($branch,$department) }}" >
         <button type="button" class="btn btn-secondary" >{{$functions->goBackTo($branch,$department)}}</button>
       </a>
-      <input  class="btn btn-primary" type="submit"  value="Delete this Venue">
+      <input  class="btn btn-primary" type="submit"  value="Delete Venue">
     </div>
 
 </form>
