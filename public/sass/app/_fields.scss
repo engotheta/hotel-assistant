@@ -161,7 +161,7 @@
   @extend .field-group;
 
   .name-field{
-    min-width: 47%;
+    min-width: 51%;
     flex-grow: 1.1;
   }
 
@@ -170,11 +170,11 @@
   }
 
   .price-field{
-    min-width: 20%;
+    min-width: 18%;
   }
 
   .amount-field{
-    min-width: 20%;
+    min-width: 18%;
   }
 }
 

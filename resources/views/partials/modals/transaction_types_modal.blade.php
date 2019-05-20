@@ -23,6 +23,7 @@
                         data-field="#transactionGroup_1" data-parent="#{{$sname.'Transactions'}}"
                         data-child-field="#{{$transaction_field}}" data-child-parent="#childFields_1"
                         data-model="{{$transaction_type->name}}"
+                        data-transaction-type="{{$transaction_type->name}}"
                         data-click="#{{$sname.'TransactionTypesModal'}}"
                         data-check="#{{$sname.'TransactionType_'.$transaction_type->id}}"
                         data-service="{{$service->name}}"

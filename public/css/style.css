@@ -10617,7 +10617,7 @@ body, #app {
 }
 
 .transaction-field-group .name-field {
-	min-width: 47%;
+	min-width: 51%;
 	-ms-flex-positive: 1.1;
 	    flex-grow: 1.1;
 }
@@ -10627,11 +10627,11 @@ body, #app {
 }
 
 .transaction-field-group .price-field {
-	min-width: 20%;
+	min-width: 18%;
 }
 
 .transaction-field-group .amount-field {
-	min-width: 20%;
+	min-width: 18%;
 }
 
 .businessday-header {

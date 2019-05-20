@@ -20,10 +20,10 @@
   <hr>
   <div class="input-group field transactions-footer center-text flex-container flex-between">
     <button type="button" class="round secondary-outline wide action-trigger"
-      data-service="" data-toggle='modal' data-field="#transactionField_1" data-transaction="" data-target="#" data-parent="#childFields_1">
+      data-service="" data-toggle='modal' data-field="#transactionField_1" data-transaction-type="" data-target="#" data-parent="#childFields_1">
       <span> add </span>
       <span class="model-name"> Sale </span>
     </button>
-    <span  class="round dark money wide" > 1000</span>
+    <span  class="group-total round dark money wide" > 1000</span>
   </div>
 </div>

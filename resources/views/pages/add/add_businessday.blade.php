@@ -83,7 +83,7 @@
                   if($activity) $service = $activity;
                   $transaction_types = $service->transactionTypes;
               ?>
-              <div id="{{$sname.'Businessday'}}">
+              <div id="{{$sname.'Businessday'}}" class="service-group">
                 <div class="businessday-header flex-container flex-between">
                   <span class="wide primary top-round dropdown-toggle"
                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
@@ -93,7 +93,7 @@
                     <div class="dropdown-menu">
                       <a class="dropdown-item"> Save State </a>
                     </div>
-                    <span class="group-total top-round primary money wide"> 3000 </span>
+                    <span class="service-total top-round primary money wide"> 3000 </span>
                 </div>
 
                 <div id="{{$sname.'Transactions'}}">
@@ -105,7 +105,7 @@
                    data-target="#{{$sname.'TransactionTypesModal'}}" >
                    Add Transaction Type
                   </button>
-                  <span  class="round primary money wide" > 1000 </span>
+                  <span  class="service-total round primary money wide" > 1000 </span>
                 </div>
 
               </div>
@@ -134,12 +134,6 @@
                   @include('partials.templates.transaction_group')
                   @include('partials.templates.transaction_field')
               </div>
-
-              @if(!$activity)
-              <div id="checkList">
-                  @include('partials.assets_checklist')
-              </div>
-              @endif
 
             <h4 class="section-title"> Optional Fields </h4>
             <hr class="dividing-line">

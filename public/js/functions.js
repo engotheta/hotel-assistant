@@ -4,31 +4,196 @@ function getAttr(element,atr){
 	return value;
 }
 
+function getParentWithClass(element,classname){
+		if(!element.className.includes(classname)) {
+			if(element.id=='app') return null;
+			return getParentWithClass(element.parentNode,classname);
+		}else return element;
+}
+
+function allEqualTo(quantity_fields,number){
+	all = true;
+	for(var i=0; i<quantity_fields.length; i++) if(quantity_fields[i].value != number) all = false;
+	return all;
+}
+
+function managePriceFieldHide(field){
+		var quantity_field = field.querySelector('.quantity-field');
+		if(!(transaction_group = getParentWithClass(field,'transaction-group'))) return null;
+		price_fields = transaction_group.querySelectorAll(".price-field");
+		quantity_fields = transaction_group.querySelectorAll(".quantity-field");
+
+		if(quantity_field.value > 1){
+			for(var i=0; i<price_fields.length; i++){
+				price_fields[i].style.display = price_fields[i].getAttribute('data-display');
+				price_fields[i].className.replace('show-price-if','');
+			}
+		}
+
+		if(allEqualTo(quantity_fields,1) && getContentWidth() >= sm ) {
+			for(var i=0; i<price_fields.length; i++){
+				price_fields[i].style.display = "none";
+				price_fields[i].setAttribute('data-display','flex');
+				price_fields[i].setAttribute('data-transaction-group',"#"+transaction_group.id);
+				if(!price_fields[i].className.includes('show-price-if')) price_fields[i].className += ' show-price-if';
+			}
+		}
+}
+
+function setAllReadOnly(fields,value=true){
+	for(var i=0; i<fields.length; i++){
+		fields[i].readOnly = value;
+	}
+}
+
+function sumAllInputs(amount_fields){
+  	var sum = 0;
+	  for(var i=0; i<amount_fields.length; i++) sum += parseInt(amount_fields[i].value);
+		return sum;
+}
+
+function sumAllHTMLs(amount_fields){
+  	var sum = 0;
+	  for(var i=0; i<amount_fields.length; i++) sum += parseInt(amount_fields[i].innerHTML);
+		return sum;
+}
+
+function setAllHTMLs(elements,html){
+	 for(var i=0; i<elements.length; i++) elements[i].innerHTML = html;
+}
+
+function updateTotalAmount(transaction_group){
+		var amount_fields = transaction_group.querySelectorAll('.amount-field');
+		setAllHTMLs(transaction_group.querySelectorAll('.group-total'),sumAllInputs(amount_fields));
+		var service_group = getParentWithClass(transaction_group,'service-group');
+		var group_totals = service_group.querySelectorAll('.group-total');
+		setAllHTMLs(transaction_group.querySelectorAll('.service-total'),sumAllHTMLs(group_totals));
+}
+
+function manageFieldValue(field,group){
+	 var quantity_field = group.querySelector("input.quantity-field");
+	 var price_field = group.querySelector("input.price-field");
+	 var amount_field = group.querySelector("input.amount-field");
+	 var transaction_group = getParentWithClass(quantity_field,'transaction-group');
+	 var amount_fields = transaction_group.querySelectorAll('.amount-field');
+	 var quantity_fields = transaction_group.querySelectorAll('.quantity-field');
+	 var value = field.value;
+
+	 // if a quantity group is changed
+	 if(field.className.includes("amount-field")){
+		 	if(quantity_field.value == 1) price_field.value = amount_field.value;
+	 }
+
+	  // if a quantity group is changed then hiding of the price field is evaluated
+		if(field.className.includes("quantity-field")){
+			// quantity is always greater than 1 or equal
+			// if quantity is set more than 1 then amount is readonly, calculated as default
+			if(!(value >= 1)) field.value = 1;
+			if(value > 1)	setAllReadOnly(amount_fields);
+			if(price_field.value==0 && value ==1 ) price_field.value = amount_field.value;
+
+			if(value == 1 && group.getAttribute('data-transaction-type')!='sale') {
+				// if quantity is unit then amount can be edited directly, except for sale
+				if(allEqualTo(quantity_fields,1)) setAllReadOnly(amount_fields,false);
+				if(getContentWidth() <= sm)	amount_field.readOnly = false;
+			}
+			managePriceFieldHide(group);
+		}
+
+		// always amount is price * quantity
+		amount_field.value =  price_field.value * quantity_field.value;
+		updateTotalAmount(transaction_group);
+
+}
+
+function manageSaleFields(service,name_field,quantity_field,price_field,amount_field){
+		name_field.readOnly = true;
+		name_field.value = lastSelectedService.name;
+		price_field.readOnly = true;
+		price_field.value = lastSelectedService.price;
+		// quantity-field -> readOnly = 1
+		// price-field -> data-price = lastSelectedService.price
+		// <option> toggle holiday_price -> price = data-holiday-price || data-price
+		if(service == 'rooms' ) {
+			quantity_field.readOnly = true;
+			var parent = field.querySelector(".dropdown-menu");
+			var option = document.createElement('a');
+			option.setAttribute('class','dropdown-item toggle-value');
+			option.innerHTML = "toggle Holiday Price";
+			parent.insertBefore(option,parent.querySelector('.remove-field'));
+			option.setAttribute("data-price-0",lastSelectedService.price);
+			option.setAttribute("data-price-1",lastSelectedService.holiday_price);
+			option.onclick = function (){ togglePrices(this)};
+		}
+
+		else if(service == 'venues' ) var venue = 0; // no sales here d
+		else quantity_field.readOnly = false;	 	//  drinks & food
+}
+
+function setFieldsEvents(field){
+	field.querySelector("input.quantity-field").onchange = function(){ manageFieldValue(this,field); }
+	field.querySelector("input.amount-field").onchange = function(){ manageFieldValue(this,field); }
+	field.querySelector("input.name-field").onchange = function(){ manageFieldValue(this,field); }
+	field.querySelector("input.price-field").onchange = function(){ manageFieldValue(this,field); }
+}
+
+function setFieldsDefaults(field){
+	field.querySelector("input.quantity-field").readOnly = false;
+	field.querySelector("input.name-field").readOnly = false;
+	field.querySelector("input.price-field").readOnly = false;
+	field.querySelector("input.quantity-field").value = 1;
+}
+
+function manageTransactionField(field){
+		if(!(name_field = field.querySelector("input.name-field"))) return null;
+		if(!(transaction_type = field.getAttribute("data-transaction-type"))) return null;
+		if(!(service = field.getAttribute("data-service"))) return null;
+		var quantity_field = field.querySelector("input.quantity-field");
+		var price_field = field.querySelector("input.price-field");
+		var amount_field = field.querySelector("input.amount-field");
+
+		setFieldsEvents(field);
+		setFieldsDefaults(field);
+
+	  if(transaction_type =="sale")	manageSaleFields(service,name_field,quantity_field,price_field,amount_field);
+
+		triggerEvent(price_field,'change');
+		triggerEvent(quantity_field,'change');
+}
+
+function hideAll(shown,condition = true){
+	for(var i=0; i<shown.length; i++){
+		var display = shown[i].getAttribute('data-display');
+	  var form = display ? display:'flex';
+		shown[i].style.display = condition? 'none':form;
+	}
+}
+
+function hideOne(shown,condition = true){
+		var display = shown.getAttribute('data-display');
+	  var form = display ? display:'flex';
+		shown.style.display = condition? 'none':form;
+}
+
 // shift element on smaller devices and return if resized
 function manageShiftOnSmall(shifted){
 		if(getContentWidth() <= sm) {
 			//implement the shift to another parent on small devices
-			if((show = document.querySelectorAll('.show-on-small')).length >=1){
-				for (var i=0; i<show.length; i++){
-					show[i].style.display= (form = show[i].getAttribute('data-display'))? form:'flex';
-				}
-			}
-			if(parent = getViaAttr(shifted,'data-small-parent') ) {
-					parent.appendChild(shifted);
-			}
+			hideAll(document.querySelectorAll('.show-on-small'),false);
+			hideAll(document.querySelectorAll('.show-price-if'),false);
+			if(parent = getViaAttr(shifted,'data-small-parent')) parent.appendChild(shifted);
 			return null;
 		}
+		//return the shifted on a big view
+		if(node = getViaAttr(shifted,'data-return-before')) node.parentNode.insertBefore(shifted,node);
+		hideAll(document.querySelectorAll('.show-on-small'));
 
-		if(node = getViaAttr(shifted,'data-return-before')) {
-			node.parentNode.insertBefore(shifted,node);
+		// hided the price input on big screen if all group quantities are 1
+		var price_fields = document.querySelectorAll('.show-price-if');
+		for(var i=0; i<price_fields.length; i++){
+			var quantity_fields = getViaAttr(price_fields[i],'data-transaction-group').querySelectorAll('.quantity-field');
+			if(allEqualTo(quantity_fields,1)) hideOne(price_fields[i]);
 		}
-
-		if((show = document.querySelectorAll('.show-on-small')).length >=1){
-			for (var i=0; i<show.length; i++){
-					show[i].style.display='none';
-			}
-		}
-
 }
 
 // manage the trigger which alters other elements attributes,
@@ -42,32 +207,33 @@ function manageAction(trigger){
 		if(target == null) return false;
 
 		//deal with: .action-dependant-elements (they have: data-action which is compared to trigger's)
-		 dependant_element = target.querySelector('.action-dependant-element');
-		 if(dependant_element) showIf(dependant_element,dependant_element.getAttribute('data-action'),action);
+		dependant_element = target.querySelector('.action-dependant-element');
+		if(dependant_element) showIf(dependant_element,dependant_element.getAttribute('data-action'),action);
 
-		 // if no action dependant_links end here
-		 dependant_links = target.querySelectorAll('.action-dependant-link');
-		 if(dependant_links.length <=0 ) return false;
+		// if no action dependant_links end here
+		dependant_links = target.querySelectorAll('.action-dependant-link');
+		if(dependant_links.length <=0 ) return false;
 
-		 // deal with: .action-depandant-link (they alter href depending on the action)
-		 // if action is not set, the links become cloners
-		 for(var i=0; i<dependant_links.length; i++){
-			 	makeIfCloner(dependant_links[i],action,trigger);
-		  	if(action == null ) switchTag(dependant_links[i],'span');
-			  if(action !=null && dependant_links[i].tagName !='A') switchTag(dependant_links[i],'a');
-			  if(action !=null) setLinkTail(dependant_links[i],action);
-		 }
-
-		 // set onclick events to new cloners
-		 if(action == null) setCloners();
+		// deal with: .action-depandant-link (they alter href depending on the action)
+		// if action is not set, the links become cloners
+		for(var i=0; i<dependant_links.length; i++){
+		 	makeIfCloner(dependant_links[i],action,trigger);
+			var x = (action == null )? switchTag(dependant_links[i],'span'):setLinkTail(dependant_links[i],action);
+		  if(action !=null && dependant_links[i].tagName !='A') switchTag(dependant_links[i],'a');
+		}
+		// if action is set, show the hidden options and viceversa
+		var x = (action !=null) ? enforceSelectRepeat('block'):enforceSelectRepeat('none');
+		// set onclick events to new cloners
+		if(action == null) setCloners();
 }
 
 // make an element a cloner if null is given else remove cloning features
 function makeIfCloner(cloner,action=null,trigger=null){
 	if(trigger==null) trigger = cloner;
-
 	//pass parent & click element to cloner element
 	if(parent = trigger.getAttribute('data-parent')) cloner.setAttribute('data-parent',parent);
+	if(parent = trigger.getAttribute('data-service')) cloner.setAttribute('data-service',parent);
+	if(transaction = trigger.getAttribute('data-transaction-type')) cloner.setAttribute('data-transaction-type',transaction);
 	cloner.setAttribute("data-click",trigger.getAttribute('data-target'));
 
 	// set clone
@@ -76,7 +242,6 @@ function makeIfCloner(cloner,action=null,trigger=null){
 		// if cloner is a action_trigger remove the class
 		if(!cloner.className.includes('clone-field')) cloner.className +=" clone-field";
 		if(cloner.className.includes('action-trigger')) cloner.className = cloner.className.replace("action-trigger","");
-
 		return 1;
 	}
 
@@ -86,15 +251,12 @@ function makeIfCloner(cloner,action=null,trigger=null){
 	cloner.onclick = function (){};
 }
 
-
 function switchTag(old_element,new_tag){
 		var new_element = document.createElement(new_tag);
 		new_element.innerHTML = old_element.innerHTML;
 		new_element.href = old_element.href;
 		var attr = old_element.attributes;
-		for(var i=0; i<attr.length; i++){
-			 new_element.setAttribute(attr[i].name,attr[i].value);
-		}
+		for(var i=0; i<attr.length; i++) new_element.setAttribute(attr[i].name,attr[i].value);
 		old_element.parentNode.replaceChild(new_element,old_element);
 }
 
@@ -120,6 +282,32 @@ function uncheckBox(checkbox){
 		triggerEvent(checkbox);
 }
 
+function enforceSelectRepeat(display){
+		if((selected = document.querySelectorAll('[data-selected="1"]')).length >=1){
+			for(var i=0; i<selected.length; i++) selected[i].style.display=display;
+		}
+}
+
+var lastSelectedService = {};
+function updateLastSelectedService(clicked_option){
+	  //stop if the data-name attribute is not set
+		if(!(name = clicked_option.getAttribute('data-name')))  return null;
+		if(!(id = clicked_option.getAttribute('data-id')))  return null;
+	  if(!(model = clicked_option.getAttribute('data-model')))  return null;
+		lastSelectedService['name'] = name;
+		lastSelectedService['id'] = id;
+
+		if(price = clicked_option.getAttribute('data-price')) lastSelectedService['price'] = price;
+		if(holiday_price = clicked_option.getAttribute('data-holiday-price')) lastSelectedService['holiday_price'] = holiday_price;
+		if(weekend_price = clicked_option.getAttribute('data-weekend-price')) lastSelectedService['weekend_price'] = weekend_price;
+		if(weekday_price = clicked_option.getAttribute('data-weekday-price')) lastSelectedService['weekday_price'] = weekday_price;
+
+		if((repeat = clicked_option.getAttribute('data-repeat')) && !parseInt(repeat)){
+			 	clicked_option.setAttribute('data-selected',"1");
+				enforceSelectRepeat('none');
+		}
+}
+
 // a cloner has two main data attributes: data-parent & data-field
 // additional attributes: data-service,
 function manageCloning(cloner){
@@ -127,10 +315,15 @@ function manageCloning(cloner){
 		clone_parent = getViaAttr(cloner,'data-parent');
 		field = cloneField(getViaAttr(cloner,'data-field'),clone_parent);
 
+		//update the inner elements of the clone element
 		updateModelField(field,cloner.getAttribute('data-model'),cloner);
 
+		// close modal if a modal was triggered and mark the selected option
+		updateLastSelectedService(cloner);
+		manageTransactionField(field);
 		if((close_modal = getViaAttr(cloner,'data-click')) && field ) triggerEvent(close_modal,'click');
 
+		//check the associated checkbox
 		if((checkbox = getViaAttr(cloner,'data-check')) && field ) {
 				field.querySelector('.remove-field').setAttribute('data-check',getAttr(cloner,'data-check'));
 				checkBox(checkbox);
@@ -169,9 +362,7 @@ function removeField(field, parent = null){
 // SOL traverse siblings and update their indexes
 function updateIndex(parent){
 		if((indexes = parent.querySelectorAll('.index')).length == 0) return false;
-		for(var i=0; i<indexes.length; i++){
-				indexes[i].innerHTML = i+1;
-		}
+		for(var i=0; i<indexes.length; i++)	indexes[i].innerHTML = i+1;
 }
 
 // clones a field and appends the clone to the fields parent
@@ -199,19 +390,13 @@ function getViaAttr(element,attr){
 // clears the values of element children with the class input
 function clearInputs(field){
 		inputs = field.querySelectorAll('.input');
-		for(var i=0; i<inputs.length; i++){
-			inputs[i].value="";
-		}
+		for(var i=0; i<inputs.length; i++) inputs[i].value="";
 }
 
 // returns a field index if it follows the underscore convention
 function getFieldIndex(field){
-	try {
-		return field.id.split('_')[1];
-	}
-	catch (e) {
-		return false;
-	}
+	try{ return field.id.split('_')[1]; }
+	catch(e){ return false; }
 }
 
 //get the documents width
@@ -222,8 +407,6 @@ function getDocWidth(){
 function getContentWidth(){
 	return parseInt(getComputedStyle(document.querySelector('#content'),null).width);
 }
-
-
 
 // sets the fields attributes to match the field instance using its index
 function updateModelField(field, model, cloner = null){
@@ -267,13 +450,21 @@ function updateModelField(field, model, cloner = null){
 	 if(el = field.querySelector('.fields-parent')) indexfyAttr(el,'id',n);
 	 if(el = field.querySelector('.action-trigger')) indexfyAttr(el,'data-parent',n);
 
-	 // pass the service type to the modal triggerer, so as to trigger the right modal
-	 if(service = cloner.getAttribute("data-service")) {
-			 if(el = field.querySelector('.action-trigger')) el.setAttribute("data-service",service);
+	 //pass the services and transactiontype to child elements
+	 if(service = cloner.getAttribute("data-service")) field.setAttribute("data-service",service);
+	 if(model = cloner.getAttribute("data-model")) field.setAttribute("data-model",model);
+	 if(transaction_type = cloner.getAttribute("data-transaction-type")) field.setAttribute("data-transaction-type",transaction_type);
+
+	 // pass the service and transaction type to the modal triggerer, so as to trigger the right modal
+	 if(el = field.querySelector('.action-trigger')){
+		 if(service) el.setAttribute("data-service",service);
+		 if(transaction_type) el.setAttribute("data-transaction-type",transaction_type);
+	 }
+
+	 // prepare showing the modal if the transaction for the service is sale
+	 if(service) {
 			 if(el && model =="sale") configToShowModal(el);
-			 if(el && model !="sale") {
-					makeIfCloner(el);
-			 }
+			 if(el && model !="sale") makeIfCloner(el);
 	 }
 
 	 // reset the cloners and triggers with in the cloned field
@@ -304,21 +495,13 @@ function changeAttr(element,attr,value){
 }
 
 function indexfy(string,index){
-		try {
-			return string.split('_')[0] + "_" + index;
-		}
-		catch (e) {
-			return false;
-		}
+		try{ return string.split('_')[0] + "_" + index; }
+		catch(e){ return false; }
 }
 
 function incrementStr(string){
-		try {
-			return string.split('_')[0] + "_" + (parseInt(string.split('_')[1])+1);
-		}
-		catch (e) {
-			return false;
-		}
+		try{ return string.split('_')[0] + "_" + (parseInt(string.split('_')[1])+1);}
+		catch (e){ return false;}
 }
 
 function replaceClass(element,old_class,new_class){
@@ -341,21 +524,12 @@ function changeId(element,new_id){
 	 	return element;
 }
 
-
 var toggle = 2;
 function toggleEditableAll(inputs){
-	if(toggle % 2 == 0){
-		for(var i=0; i<inputs.length; i++){
-			inputs[i].readOnly=false;
-		}
-	}else{
-		for(var i=0; i<inputs.length; i++){
-			inputs[i].readOnly=true;
-		}
-	}
+	if(toggle % 2 == 0)	for(var i=0; i<inputs.length; i++) inputs[i].readOnly=false;
+	else for(var i=0; i<inputs.length; i++) inputs[i].readOnly=true;
 	toggle++;
 }
-
 
 function triggerEvent(element, eventName = 'change'){
 	var eventt = document.createEvent('HTMLEvents');
@@ -364,55 +538,36 @@ function triggerEvent(element, eventName = 'change'){
 }
 
 function createThumbnail(file,display){
-	var prev_thumbnails = display.querySelectorAll("thumbnail");
-  var img = "";
+		var prev_thumbnails = display.querySelectorAll("thumbnail");
+	  var img = "";
 
-	for(var i=0; i<prev_thumbnails.length; i++){
-		prev_thumbnails[i].innerHTML = "";
-    display.removeChild(prev_thumbnails[i]);
-	}
+		for(var i=0; i<prev_thumbnails.length; i++){
+			prev_thumbnails[i].innerHTML = "";
+	    display.removeChild(prev_thumbnails[i]);
+		}
 
-	if(1){
 		var x = file.files.length-1;
-		create(x,file,display);
-  }
+		if(1)	create(x,file,display);
 
-	function create(i,file,display){
-
-    	 var UploadFile =  file.files[i];
-    	 var ReaderObj  =  new FileReader();
-
-    	 ReaderObj.onloadend = function () {
-
-      	 	var image = document.createElement("img");
-      		var thumbnail = document.createElement("div");
-
-      		thumbnail.setAttribute("class"," thumbnail ");
+		function create(i,file,display){
+	  	 var UploadFile =  file.files[i];
+	  	 var ReaderObj  =  new FileReader();
+	  	 ReaderObj.onloadend = function () {
+	    	 	var image = document.createElement("img");
+	    		var thumbnail = document.createElement("div");
+	    		thumbnail.setAttribute("class"," thumbnail ");
 					image.setAttribute('class',"centered-item-js relative");
-      		thumbnail.appendChild(image);
-
-
-    		  display.appendChild(thumbnail);
-    	    image.src  = ReaderObj.result;
-    	    img = image;
-
-    	    if(x>=0){
-    	    	create(--x,file,display);
-    	    }
-
-    	  };
-
-    	 if (UploadFile) {
-    	    ReaderObj.readAsDataURL(UploadFile);
-    	  } else {
-    	    // img.src  = "";
-    	  }
-	}
-
+	    		thumbnail.appendChild(image);
+	  		  display.appendChild(thumbnail);
+	  	    image.src  = ReaderObj.result;
+	  	    img = image;
+	  	    if(x >= 0) create(--x,file,display);
+	  	 };
+	  	 if (UploadFile) ReaderObj.readAsDataURL(UploadFile);
+		}
 }
 
 function showThumbnail(source,display_id){
-
 	var image = document.createElement("img");
 	var thumbnail = document.createElement("div");
 	var holder = document.createElement("span");
@@ -428,53 +583,35 @@ function showThumbnail(source,display_id){
 
 	holder.appendChild(thumbnail);
 	document.getElementById(display_id).appendChild(holder);
-
 	delete_thumb.innerHTML = '<i class="ti ti-trash font_icon "> </i>';
-
-	if(source.toString().search("images")>0){
-		image.src  = source;
-	}
-
+	if(source.toString().search("images") > 0) image.src  = source;
 }
 
 function deleteThumb(thumb){
 	thumb.parentNode.innerHTML="";
 }
 
-
 function createIconThumbnail(file,display){
-   var prev_thumbnail = document.getElementsByClassName(display+"icon_thumbnail");
-
-	for(var i=0; i<prev_thumbnail.length; i++){
-		prev_thumbnail[i].innerHTML = "";
-	}
-
-	var image = document.createElement("img");
-	var thumbnail = document.createElement("div");
-	var holder = document.createElement("span");
+  var prev_thumbnail = document.getElementsByClassName(display+"icon_thumbnail");
+	for(var i=0; i<prev_thumbnail.length; i++) prev_thumbnail[i].innerHTML = "";
+	var image = document.createElement("img"),
+	thumbnail = document.createElement("div"),
+	holder = document.createElement("span");
 	holder.setAttribute("class",display+"icon_thumbnail");
 	thumbnail.setAttribute("class","icon_thumbnail thumbnail");
 	thumbnail.appendChild(image);
 
 	holder.appendChild(thumbnail);
 	document.getElementById(display).appendChild(holder);
-
 	var source = file;
 
-	if(source.toString().search("images")>0){
-		image.src  = source;
+	if(source.toString().search("images") > 0){
+		image.src = source;
 		return;
 	}else{
-		  var UploadFile    =  file.files[0];
-	 	  var ReaderObj  =  new FileReader();
-	      ReaderObj.onloadend = function () {
-	         image.src  = ReaderObj.result;
-	      };
-	      if (UploadFile) {
-	          ReaderObj.readAsDataURL(UploadFile);
-		  } else {
-
-		  }
+	  var UploadFile = file.files[0], ReaderObj = new FileReader();
+    ReaderObj.onloadend = function () { image.src  = ReaderObj.result;};
+    if (UploadFile) ReaderObj.readAsDataURL(UploadFile);
 	}
 }
 
@@ -482,101 +619,72 @@ function centerItem(item, parent = document.body){
 	var view_width = parseInt(getComputedStyle(parent,null).width);
 	var view_height = parseInt(getComputedStyle(document.body,null).height);
 	var item_width = parseInt(getComputedStyle(item,null).width);
-
-	if(view_width < item_width) {
-		item.style.left=(view_width-item_width)/2+"px";
-	}else {
-		item.style.left="0px";
-	}
+	if(view_width < item_width) item.style.left=(view_width-item_width)/2+"px";
+	else item.style.left="0px";
 }
-
 
 function centerItems(items, parent = document.body){
 	var view_width = parseInt(getComputedStyle(parent,null).width);
   var view_height = parseInt(getComputedStyle(document.body,null).height);
-	var item_width;
-	var item_current_left;
+	var item_width,item_current_left;
 
 	for(var i=0; i<items.length; i++){
 		item_width = parseInt(getComputedStyle(these[i],null).width);
 		if(view_width < item_width) {
 			item_current_left  = parseInt(these[i].getBoundingClientRect().left);
 			these[i].style.left = ((view_width-item_width)/2 - item_current_left)+"px";
-		}else {
-			these[i].style.left=item_current_left+"px";
-		}
+		}else these[i].style.left=item_current_left+"px";
 	}
-
 }
 
-
-function setItemSquare(item){
+function setSquare(item){
 	var item_width ;
-
   item_width = getComputedStyle(item,null).width;
 	item.style.height = item_width;
-
 }
 
-
-function setItemsSquare(items){
+function setAllSquare(items){
 	var item_width ;
-
 	for(var i=0; i<items.length; i++){
     item_width = getComputedStyle(items[i],null).width;
 		items[i].style.height = item_width;
 	}
 }
 
-
-
-function fitToAvailableDuoWidth(item,sibling){
+function fitToDuoWidth(item,sibling){
 	var view_width = parseInt(getComputedStyle(item.parentNode,null).width);
 	var sibling_width = parseInt(getComputedStyle(sibling,null).width);
 	var item_width = view_width - sibling_width;
-
 	item.style.width = item_width + "px";
 }
 
-
-function fitToAvailableDuoHeight(item,sibling){
-	var view_height = parseInt(getComputedStyle(item.parentNode,null).height);
-	var sibling_height = parseInt(getComputedStyle(sibling,null).height);
-	var item_height = view_height - sibling_height;
-//alert(sibling_height);
-	item.style.height = item_height + "px";
+function fitToDuoHeight(item,sibling){
+	var view_height = parseInt(getComputedStyle(item.parentNode,null).height),
+	    sibling_height = parseInt(getComputedStyle(sibling,null).height),
+	    item_height = view_height - sibling_height;
+			item.style.height = item_height + "px";
 }
-
 
 function getAverageRGB(imgEl)  {
  	var blockSize = 5, // only visit every 5 pixels
  		defaultRGB =  { r:0,g:0,b:0}, // for non-supporting envs
 		canvas = document.createElement('canvas'),
 		context = canvas.getContext && canvas.getContext('2d'),
-		data, width, height,
+		data, width, height, length,
 		i = -4,
-		length,
 		rgb =  { r:0,g:0,b:0},
 		count = 0 ;
 
-	 if (!context)  {
-		 return defaultRGB ;
-	 }
-
+	 if (!context) return defaultRGB;
 	 height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height ;
 	 width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width ;
 
 	 context.drawImage(imgEl, 0, 0) ;
-
-	 try  {
-		 data = context.getImageData(0, 0, width, height) ;
-	 } catch(e)  {
-		 /* security error, img on diff domain */ return defaultRGB ;
-	 }
+	 try{ data = context.getImageData(0, 0, width, height);}
+	 catch(e){ return defaultRGB ;} /* security error, img on diff domain */
 
 	 length = data.data.length ;
-
-	 while ( (i += blockSize * 4) < length )  {
+	 while((i += blockSize * 4) < length ){
 		 ++count ;
 		 rgb.r += data.data[i] ;
 		 rgb.g += data.data[i+1] ;
@@ -586,32 +694,20 @@ function getAverageRGB(imgEl)  {
 	 rgb.g = ~~(rgb.g/count) +0;
 	 rgb.b = ~~(rgb.b/count) +0;
 	 rgb.r = ~~(rgb.r/count) +0;
-
 	 return rgb;
  } //For IE, check out excanvas.
 
-
  function matchImageColor(image,subject){
-	var rgb = getAverageRGB(image);
- 	//	var rgb = get_average_rgb(image);
- 	//	alert(rgb.r);
-
- 	if(subject.length>=1){
- 		for(var i=0; i<subject.length; i++){
- 			subject[i].style.background = "rgba("+ rgb.r +"," + rgb.g +"," + rgb.b + ","+1+")";
- 		}
- 	}else{
- 		subject.style.background = "rgba("+ rgb.r +"," + rgb.g +"," + rgb.b + ","+1+")";
- 	}
+		var rgb = getAverageRGB(image);
+		if(!(subject.length>=1)) subject.style.background = "rgba("+ rgb.r +"," + rgb.g +"," + rgb.b + ","+1+")";
+	 	else for(var i=0; i<subject.length; i++) subject[i].style.background = "rgba("+ rgb.r +"," + rgb.g +"," + rgb.b + ","+1+")";
  }
-
 
 function invertRGB(rgb,subject_id){
 	var subject = document.getElementById(subject_id);
 	 rgb.g = 256 -  rgb.g ;
 	 rgb.b =  256 -  rgb.g ;
 	 rgb.r = 256 -  rgb.g ;
-
 }
 
 /*
@@ -630,12 +726,10 @@ Number.prototype.toMoney = function(decimals, decimal_sep, thousands_sep)
    rather than doing value === undefined.
    */
    t = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep, //if you don't want to use a thousands separator you can pass empty string as thousands_sep value
-
    sign = (n < 0) ? '-' : '',
 
    //extracting the absolute value of the integer part of the number and converting to string
    i = parseInt(n = Math.abs(n).toFixed(c)) + '',
-
    j = ((j = i.length) > 3) ? j % 3 : 0;
    return sign + (j ? i.substr(0, j) + t : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : '');
 }

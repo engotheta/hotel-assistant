@@ -22,7 +22,9 @@
               <?php $n=1; ?>
               @forelse ($rooms as $room)
                   <a href="{{ url($functions->getLink('rooms',$room,$branch,$department).'/edit')}}"
-                    class="list-group-item list-group-item-action action-dependant-link" data-check="#room_{{$room->id}}"
+                    class="list-group-item list-group-item-action action-dependant-link" 
+                    data-id="{{$room->id}}" data-name="{{$room->name}}" data-price="{{$room->price}}"
+                    data-holiday-price="{{$room->holiday_price}}" data-selected="0" data-repeat="0"
                     data-action="edit" data-parent="" data-click="" data-model="room" data-field="#transactionField_1">
                     <span class="dark round "> {{ $n++ }} </span>
                     <span class="system-text padded">{{ $room->name }} </span>
